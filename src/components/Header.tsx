@@ -14,13 +14,16 @@ const Header: React.FC<HeaderProps> = ({ user, onAuthClick, onLogout }) => {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <div className="flex items-center">
-              <img 
-                src="/logo1.jpg" 
-                alt="Ruhil Future Technologies" 
-                className="h-12 w-auto mr-3"
-              />
+              {/* Circular Logo with Blue Border */}
+              <div className="relative w-14 h-14 flex items-center justify-center">
+                <img
+                  src="/logo1.jpg"
+                  alt="Ruhil Future Technologies Logo"
+                  className="w-12 h-12 object-contain rounded-full border-4 border-blue-600 bg-white shadow-md"
+                />
+              </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">Ruhil Future Technologies</h1>
+                <h1 className="text-xl font-bold text-gray-900 ml-3">Ruhil Future Technologies</h1>
               </div>
             </div>
           </div>

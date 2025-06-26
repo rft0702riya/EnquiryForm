@@ -162,6 +162,18 @@ const ContactForm: React.FC<ContactFormProps> = ({ user }) => {
       if (!formData.source.trim()) newErrors.source = 'This field is required';
       if (!formData.onlineTest) newErrors.onlineTest = 'This field is required';
       if (!formData.laptop) newErrors.laptop = 'This field is required';
+      // Aadhar validation (if provided)
+      if (formData.aadhar) {
+        if (!/^\d{12}$/.test(formData.aadhar)) newErrors.aadhar = 'Aadhar must be 12 digits';
+      }
+      // PAN validation (if provided)
+      if (formData.pan) {
+        if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(formData.pan)) newErrors.pan = 'PAN must be 10 characters (e.g., ABCDE1234F)';
+      }
+      // Passport validation (if provided)
+      if (formData.passport) {
+        if (!/^[A-Z0-9]{8,9}$/i.test(formData.passport)) newErrors.passport = 'Passport should be 8-9 alphanumeric characters';
+      }
     }
     if (step === 7) {
       if (!formData.resume) newErrors.resume = 'Resume is required';
@@ -243,23 +255,38 @@ const ContactForm: React.FC<ContactFormProps> = ({ user }) => {
   const renderStep = () => {
     switch (step) {
       case 0:
-  return (
+        return (
           <div>
             <h2 className="text-2xl font-bold mb-4 flex items-center"><User className="mr-2" />Personal Details</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block mb-1 font-medium">Full Name *</label>
-                <input type="text" value={formData.fullName} onChange={e => handleInputChange('fullName', e.target.value)} className="input" placeholder="As per Aadhaar or ID" />
+                <input
+                  type="text"
+                  value={formData.fullName}
+                  onChange={e => handleInputChange('fullName', e.target.value)}
+                  className="input"
+                  placeholder="As per Aadhaar or ID"
+                />
                 {errors.fullName && <p className="text-red-500 text-sm">{errors.fullName}</p>}
               </div>
               <div>
                 <label className="block mb-1 font-medium">Date of Birth *</label>
-                <input type="date" value={formData.dob} onChange={e => handleInputChange('dob', e.target.value)} className="input" />
+                <input
+                  type="date"
+                  value={formData.dob}
+                  onChange={e => handleInputChange('dob', e.target.value)}
+                  className="input"
+                />
                 {errors.dob && <p className="text-red-500 text-sm">{errors.dob}</p>}
               </div>
               <div>
                 <label className="block mb-1 font-medium">Gender *</label>
-                <select value={formData.gender} onChange={e => handleInputChange('gender', e.target.value)} className="input">
+                <select
+                  value={formData.gender}
+                  onChange={e => handleInputChange('gender', e.target.value)}
+                  className="input"
+                >
                   <option value="">Select</option>
                   {genderOptions.map(opt => <option key={opt} value={opt}>{opt}</option>)}
                 </select>
@@ -267,27 +294,69 @@ const ContactForm: React.FC<ContactFormProps> = ({ user }) => {
               </div>
               <div>
                 <label className="block mb-1 font-medium">Mobile Number *</label>
-                <input type="tel" value={formData.mobile} onChange={e => handleInputChange('mobile', e.target.value)} className="input" placeholder="Primary Mobile" />
+                <input
+                  type="tel"
+                  value={formData.mobile}
+                  onChange={e => {
+                    const value = e.target.value.replace(/[^0-9]/g, '').slice(0, 10);
+                    handleInputChange('mobile', value);
+                  }}
+                  onKeyDown={e => {
+                    if (formData.mobile.length >= 10 && e.key !== 'Backspace' && e.key !== 'Tab') {
+                      e.preventDefault();
+                    }
+                  }}
+                  className={`input ${formData.mobile.length === 10 ? 'border-yellow-500 focus:ring-yellow-500' : ''}`}
+                  placeholder="Primary Mobile"
+                  maxLength={10}
+                />
+                {formData.mobile.length === 10 && (
+                  <p className="text-yellow-500 text-sm mt-1" aria-live="polite">Maximum 10 digits allowed</p>
+                )}
                 {errors.mobile && <p className="text-red-500 text-sm">{errors.mobile}</p>}
               </div>
               <div>
                 <label className="block mb-1 font-medium">Alternate Contact Number</label>
-                <input type="tel" value={formData.altMobile} onChange={e => handleInputChange('altMobile', e.target.value)} className="input" placeholder="Optional" />
+                <input
+                  type="tel"
+                  value={formData.altMobile}
+                  onChange={e => {
+                    const value = e.target.value.replace(/[^0-9]/g, '').slice(0, 10);
+                    handleInputChange('altMobile', value);
+                  }}
+                  onKeyDown={e => {
+                    if (formData.altMobile.length >= 10 && e.key !== 'Backspace' && e.key !== 'Tab') {
+                      e.preventDefault();
+                    }
+                  }}
+                  className={`input ${formData.altMobile.length === 10 ? 'border-yellow-500 focus:ring-yellow-500' : ''}`}
+                  placeholder="Optional"
+                  maxLength={10}
+                />
+                {formData.altMobile.length === 10 && (
+                  <p className="text-yellow-500 text-sm mt-1" aria-live="polite">Maximum 10 digits allowed</p>
+                )}
                 {errors.altMobile && <p className="text-red-500 text-sm">{errors.altMobile}</p>}
               </div>
               <div>
                 <label className="block mb-1 font-medium">Email Address *</label>
-                <input type="email" value={formData.email} onChange={e => handleInputChange('email', e.target.value)} className="input" placeholder="Official / Personal" />
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={e => handleInputChange('email', e.target.value)}
+                  className="input"
+                  placeholder="Official / Personal"
+                />
                 {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
               </div>
             </div>
-      </div>
+          </div>
         );
       case 1:
         return (
           <div>
             <h2 className="text-2xl font-bold mb-4 flex items-center"><MapPin className="mr-2" />Location Details</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block mb-1 font-medium">Current City *</label>
                 <input type="text" value={formData.currentCity} onChange={e => handleInputChange('currentCity', e.target.value)} className="input" />
@@ -375,7 +444,7 @@ const ContactForm: React.FC<ContactFormProps> = ({ user }) => {
               <div className="flex flex-wrap gap-3">
                 {techSkillOptions.map(skill => (
                   <label key={skill} className="flex items-center space-x-2">
-              <input
+                    <input
                       type="checkbox"
                       checked={formData.techSkills.includes(skill)}
                       onChange={() => handleCheckboxChange('techSkills', skill)}
@@ -433,7 +502,7 @@ const ContactForm: React.FC<ContactFormProps> = ({ user }) => {
                 <div className="flex flex-wrap gap-3">
                   {locationOptions.map(loc => (
                     <label key={loc} className="flex items-center space-x-2">
-              <input
+                      <input
                         type="checkbox"
                         checked={formData.preferredLocations.includes(loc)}
                         onChange={() => handleCheckboxChange('preferredLocations', loc)}
@@ -499,12 +568,40 @@ const ContactForm: React.FC<ContactFormProps> = ({ user }) => {
                 <input type="text" value={formData.languages} onChange={e => handleInputChange('languages', e.target.value)} className="input" />
               </div>
               <div>
-                <label className="block mb-1 font-medium">Aadhar Number / PAN (post selection, Optional)</label>
-                <input type="text" value={formData.aadhar} onChange={e => handleInputChange('aadhar', e.target.value)} className="input" placeholder="Aadhar or PAN" />
-        </div>
-        <div>
-                <label className="block mb-1 font-medium">Passport availability (if international role, Optional)</label>
-                <input type="text" value={formData.passport} onChange={e => handleInputChange('passport', e.target.value)} className="input" placeholder="Yes/No" />
+                <label className="block mb-1 font-medium">Aadhar Number (Optional)</label>
+                <input
+                  type="text"
+                  value={formData.aadhar}
+                  onChange={e => handleInputChange('aadhar', e.target.value.replace(/[^0-9]/g, '').slice(0, 12))}
+                  className="input"
+                  placeholder="12-digit Aadhar"
+                  maxLength={12}
+                />
+                {errors.aadhar && <p className="text-red-500 text-sm">{errors.aadhar}</p>}
+              </div>
+              <div>
+                <label className="block mb-1 font-medium">PAN Number (Optional)</label>
+                <input
+                  type="text"
+                  value={formData.pan}
+                  onChange={e => handleInputChange('pan', e.target.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 10))}
+                  className="input"
+                  placeholder="ABCDE1234F"
+                  maxLength={10}
+                />
+                {errors.pan && <p className="text-red-500 text-sm">{errors.pan}</p>}
+              </div>
+              <div>
+                <label className="block mb-1 font-medium">Passport Number (Optional)</label>
+                <input
+                  type="text"
+                  value={formData.passport}
+                  onChange={e => handleInputChange('passport', e.target.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 9))}
+                  className="input"
+                  placeholder="8-9 alphanumeric"
+                  maxLength={9}
+                />
+                {errors.passport && <p className="text-red-500 text-sm">{errors.passport}</p>}
               </div>
             </div>
           </div>
@@ -521,7 +618,7 @@ const ContactForm: React.FC<ContactFormProps> = ({ user }) => {
             <div className="mb-4">
               <label className="block mb-1 font-medium">Upload Academic Documents (Optional, PDF)</label>
               <input type="file" accept="application/pdf" onChange={e => handleFileChange('academics', e.target.files ? e.target.files[0] : null)} className="input" />
-        </div>
+            </div>
           </div>
         );
       case 8:
@@ -572,17 +669,17 @@ const ContactForm: React.FC<ContactFormProps> = ({ user }) => {
           )}
           {step === steps.length - 1 && (
             <button type="submit" disabled={isSubmitting} className="flex items-center px-6 py-2 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors ml-auto disabled:opacity-50">
-            {isSubmitting ? (
-              <>
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+              {isSubmitting ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                   Submitting...
-              </>
-            ) : (
-              <>
+                </>
+              ) : (
+                <>
                   <Send className="mr-2" /> Submit
-              </>
-            )}
-          </button>
+                </>
+              )}
+            </button>
           )}
         </div>
       </form>
@@ -591,6 +688,3 @@ const ContactForm: React.FC<ContactFormProps> = ({ user }) => {
 };
 
 export default ContactForm;
-
-// Tailwind input style helper (add to global CSS or use inline for now)
-// .input { @apply w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all; }
